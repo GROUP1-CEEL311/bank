@@ -43,23 +43,44 @@ void main() {
         if (option == '1') {
             // Enter deposited amount
             print("\n--- DEPOSIT AMOUNT ---");
-            stdout.write("Enter the amount you want to deposit: \$");
-            double depositInput = double.tryParse(stdin.readLineSync()?.trim() ?? '') ?? 0;
-            
-            if (depositInput > 0) {
-                depositedAmount = depositInput;
-                remainingBalance = depositedAmount;
-                print("You have deposited: \$$depositedAmount");
-                print("Current Balance: \$$remainingBalance\n");
-            } else {
-                print("Invalid amount. Please enter a positive number.\n");
+            bool depositDone = false;
+            while (!depositDone) {
+                stdout.write("Enter the amount you want to deposit (or 0 to cancel): ₱");
+                double depositInput = double.tryParse(stdin.readLineSync()?.trim() ?? '') ?? -1;
+                
+                if (depositInput == 0) {
+                    print("Deposit cancelled.\n");
+                    depositDone = true;
+                } else if (depositInput < 0) {
+                    print("Invalid amount. Please enter a valid positive number.\n");
+                } else {
+                    while (true) {
+                        stdout.write("You are about to deposit ₱${depositInput.toStringAsFixed(2)}. Confirm? (Y/N): ");
+                        String confirm = stdin.readLineSync()?.trim().toUpperCase() ?? '';
+                        
+                        if (confirm == 'Y') {
+                            depositedAmount = depositInput;
+                            remainingBalance = depositedAmount;
+                            print("You have deposited: ₱${depositedAmount.toStringAsFixed(2)}");
+                            print("Current Balance: ₱${remainingBalance.toStringAsFixed(2)}\n");
+                            depositDone = true;
+                            break;
+                        } else if (confirm == 'N') {
+                            print("Deposit cancelled.\n");
+                            depositDone = true;
+                            break;
+                        } else {
+                            print("Invalid input. Please enter Y or N.");
+                        }
+                    }
+                }
             }
             
         } else if (option == '2') {
             // Display deposited amount
             print("\n--- DEPOSITED AMOUNT ---");
             if (depositedAmount > 0) {
-                print("Amount deposited: \$$depositedAmount\n");
+                print("Amount deposited: ₱${depositedAmount.toStringAsFixed(2)}\n");
             } else {
                 print("No deposit has been made yet.\n");
             }
@@ -71,20 +92,39 @@ void main() {
             if (depositedAmount <= 0) {
                 print("No deposit available. Please deposit money first.\n");
             } else {
-                stdout.write("Enter the amount you want to withdraw: \$");
-                double withdrawInput = double.tryParse(stdin.readLineSync()?.trim() ?? '') ?? 0;
-                
-                if (withdrawInput > 0) {
-                    if (withdrawInput > remainingBalance) {
-                        print("ALERT: Withdrawal amount (\$$withdrawInput) exceeds available balance (\$$remainingBalance)!");
-                        print("Withdrawal DENIED. Transaction cancelled.\n");
+                bool withdrawDone = false;
+                while (!withdrawDone) {
+                    stdout.write("Enter the amount you want to withdraw (or 0 to cancel): ₱");
+                    double withdrawInput = double.tryParse(stdin.readLineSync()?.trim() ?? '') ?? -1;
+                    
+                    if (withdrawInput == 0) {
+                        print("Withdrawal cancelled.\n");
+                        withdrawDone = true;
+                    } else if (withdrawInput < 0) {
+                        print("Invalid amount. Please enter a positive number.\n");
+                    } else if (withdrawInput > remainingBalance) {
+                        print("ALERT: Withdrawal amount (₱${withdrawInput.toStringAsFixed(2)}) exceeds available balance (₱${remainingBalance.toStringAsFixed(2)})!");
+                        print("Please enter a smaller amount.\n");
                     } else {
-                        remainingBalance -= withdrawInput;
-                        print("You have withdrawn: \$$withdrawInput");
-                        print("Remaining balance: \$$remainingBalance\n");
+                        while (true) {
+                            stdout.write("You are about to withdraw ₱${withdrawInput.toStringAsFixed(2)}. Confirm? (Y/N): ");
+                            String confirm = stdin.readLineSync()?.trim().toUpperCase() ?? '';
+                            
+                            if (confirm == 'Y') {
+                                remainingBalance -= withdrawInput;
+                                print("You have withdrawn: ₱${withdrawInput.toStringAsFixed(2)}");
+                                print("Remaining balance: ₱${remainingBalance.toStringAsFixed(2)}\n");
+                                withdrawDone = true;
+                                break;
+                            } else if (confirm == 'N') {
+                                print("Withdrawal cancelled.\n");
+                                withdrawDone = true;
+                                break;
+                            } else {
+                                print("Invalid input. Please enter Y or N.");
+                            }
+                        }
                     }
-                } else {
-                    print("Invalid amount. Please enter a positive number.\n");
                 }
             }
             
@@ -94,8 +134,8 @@ void main() {
             if (depositedAmount <= 0) {
                 print("No account information available yet.\n");
             } else {
-                print("Original deposit: \$$depositedAmount");
-                print("Remaining balance: \$$remainingBalance\n");
+                print("Deposited Amount: ₱${depositedAmount.toStringAsFixed(2)}");
+                print("Remaining balance: ₱${remainingBalance.toStringAsFixed(2)}\n");
                 
                 if (remainingBalance < 0) {
                     print("ALERT: Your balance is NEGATIVE!\n");
@@ -105,9 +145,17 @@ void main() {
             }
             
         } else if (option == '5') {
-            print("\n===== THANK YOU =====");
-            print("Thank you for using our banking system. Goodbye!");
-            break;
+            stdout.write("\nAre you sure you want to exit? (Y/N): ");
+            String confirm = stdin.readLineSync()?.trim().toUpperCase() ?? '';
+            
+            if (confirm == 'Y') {
+                print("\n===== THANK YOU =====");
+                print("Thank you for using our banking system. Goodbye!");
+                break;
+            } else {
+                print("Exit cancelled. Returning to menu.\n");
+                option = null;
+            }
             
         } else {
             print("Invalid option. Please select between 1 to 5.\n");
